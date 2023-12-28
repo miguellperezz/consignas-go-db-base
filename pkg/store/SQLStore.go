@@ -9,15 +9,17 @@ type SQLStore struct {
 	db *sql.DB
 }
 
-func NewSQLStore(db *sql.DB) StoreInterface {
+func NewMySQLStore(db *sql.DB) StoreInterface {
 	return &SQLStore{
 		db: db,
 	}
 }
 
 func (s *SQLStore) Read(id int) (domain.Product, error) {
-	product := domain.Product{}
-	err := s.db.QueryRow("SELECT * FROM products WHERE id = ?", id).Scan(&product.Id, &product.CodeValue, &product.Name, &product.Price)
+	var product domain.Product
+	query := "SELECT * FROM products WHERE id = ?;"
+	row := s.db.QueryRow(query, id)
+	err := row.Scan(&product.Id, &product.Name, &product.Quantity, &product.CodeValue, &product.IsPublished, &product.Expiration, &product.Price)
 	if err != nil {
 		return domain.Product{}, err
 	}
@@ -25,8 +27,17 @@ func (s *SQLStore) Read(id int) (domain.Product, error) {
 }
 
 func (s *SQLStore) Create(product domain.Product) error {
-	_, err := s.db.Exec("INSERT INTO products (name, quantity, code_value, is_published, expiration, price) VALUES (?, ?, ?, ?, ?, ?) ", product.Name, product.Quantity, product.CodeValue, product.IsPublished, product.Expiration, product.Price)
+	query := "INSERT INTO products (name, quantity, code_value, is_published, expiration, price) VALUES (?, ?, ?, ?, ?, ?); "
+	stmt, err := s.db.Prepare(query)
+	if err != nil {
+		return err
+	}
 	
+	res, err := stmt.Exec(product.Name, product.Quantity, product.CodeValue, product.IsPublished, product.Expiration, product.Price)
+	if err != nil {
+		return err
+	}
+	_, err = res.RowsAffected()
 	if err != nil {
 		return err
 	}

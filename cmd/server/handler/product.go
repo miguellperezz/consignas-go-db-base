@@ -82,6 +82,7 @@ func validateExpiration(exp string) (bool, error) {
 func (h *productHandler) Post() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var product domain.Product
+		/*
 		token := c.GetHeader("TOKEN")
 		if token == "" {
 			web.Failure(c, 401, errors.New("token not found"))
@@ -91,6 +92,7 @@ func (h *productHandler) Post() gin.HandlerFunc {
 			web.Failure(c, 401, errors.New("invalid token"))
 			return
 		}
+		*/
 		err := c.ShouldBindJSON(&product)
 		if err != nil {
 			web.Failure(c, 400, errors.New("invalid json"))

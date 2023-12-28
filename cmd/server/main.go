@@ -5,13 +5,15 @@ import (
 	"github.com/bootcamp-go/consignas-go-db.git/internal/product"
 	"github.com/bootcamp-go/consignas-go-db.git/pkg/store"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 	"database/sql"
 )
 
 func main() {
 
 	//storage := store.NewJsonStore("./products.json")
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/products")
+	db, err := sql.Open("mysql", "root@tcp(localhost:3306)/my_db")
+
 	if err != nil {
 		panic(err.Error()	)
 	}
@@ -19,9 +21,9 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	//storage := store.NewMySQLStore(db)
-	storage := store.NewMySQLStore(db)
 
+	storage := store.NewMySQLStore(db)
+	//Sstorage := store.NewJsonStore("./products.json")
 	repo := product.NewRepository(storage)
 	service := product.NewService(repo)
 	productHandler := handler.NewProductHandler(service)
