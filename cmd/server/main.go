@@ -5,11 +5,22 @@ import (
 	"github.com/bootcamp-go/consignas-go-db.git/internal/product"
 	"github.com/bootcamp-go/consignas-go-db.git/pkg/store"
 	"github.com/gin-gonic/gin"
+	"database/sql"
 )
 
 func main() {
 
-	storage := store.NewJsonStore("./products.json")
+	//storage := store.NewJsonStore("./products.json")
+	db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/products")
+	if err != nil {
+		panic(err.Error()	)
+	}
+	err = db.Ping()
+	if err != nil {
+		panic(err.Error())
+	}
+	//storage := store.NewMySQLStore(db)
+	storage := store.NewMySQLStore(db)
 
 	repo := product.NewRepository(storage)
 	service := product.NewService(repo)
